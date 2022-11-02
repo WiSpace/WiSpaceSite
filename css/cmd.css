@@ -1,0 +1,44 @@
+@font-face {
+    font-family: 'CMDFont';
+    src: url('font/cmd.ttf');
+}
+
+body {
+    background-color: black; color: white;
+    font-family: 'CMDFont';
+}
+
+.cmd-b {
+    animation: blinker 1s infinite;
+}
+
+@keyframes blinker {
+    50% {
+        opacity: 0;
+    }
+}
+
+.cmd-text, .cmd-text:active, .cmd-text:focus, .cmd-text:checked, .cmd-text:link {
+    /* all: unset;
+    border:0; border-radius: 0%;
+    background-color: black; color:white;
+    margin: 0;
+    width: 100%;
+    float:left; */
+
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    color:white;
+    font-family: 'CMDFont';
+    margin: 0; padding: 0;
+    background-clip: padding-box;
+    outline: 0;
+    transition: none;
+    font-size: inherit;
+    width: 60%;
+}
+#log {
+    white-space: pre-wrap;
+    tab-size: 4;
+}

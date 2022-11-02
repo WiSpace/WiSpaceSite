@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]>      <html class="no-js"> <!--<![endif]-->
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>WiSpace — Gradient</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="style.css?v=5">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+    </head>
+    <body>
+        <!--[if lt IE 7]>
+            <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="#">upgrade your browser</a> to improve your experience.</p>
+        <![endif]-->
+        <button class="btns" id="copy" onclick="copy();">
+        <img src="img/copy.svg" alt="C">
+        </button>
+        <button class="btns" id="upd" onclick="new_gen();">
+            <img src="img/update.svg" alt="R">
+        </button>
+        <div class="main">
+            <h1>wispace. gradient generator.</h1>
+            <div><b><i><code class="codeg"></code></i></b></div>
+        </div>
+
+        <script>
+            var valt;
+
+            function get_random_color() {
+                var r_col = "#"+((1<<24)*Math.random()|0).toString(16);
+                return r_col;
+            }
+
+            function copy() {
+                var v = $("<input>");
+                $("body").append(v);
+                v.val(valt).select();
+                document.execCommand("copy");
+                v.remove();
+            }
+
+            function new_gen() {
+                try {
+                    valt = "linear-gradient(90deg, "+get_random_color()+", "+get_random_color()+")"
+                    console.log(valt);
+                    $("body").css("background-image", valt);
+                    $(".codeg").html(valt);
+                } catch {
+                    new_gen();
+                }
+            }
+            new_gen();
+            copy();
+
+        </script>
+    </body>
+</html>

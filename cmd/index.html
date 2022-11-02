@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]>      <html class="no-js"> <!--<![endif]-->
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>CMD.</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="../css/cmd.css">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+    </head>
+    <body>
+        <!--[if lt IE 7]>
+            <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="#">upgrade your browser</a> to improve your experience.</p>
+        <![endif]-->
+        
+        <p>(c) wispace dev. root console.</p>
+        <div id="log"></div>
+
+        <span><span id="path"></span>><input type="text" class="cmd-text" autofocus></span>
+
+        <script>
+            var path;
+            var updPath;
+            var FileSystem = {
+                "sys": {
+                    "type": "folder",
+                    "root": {
+                        "type": "folder",
+                        "test.txt": {"type":"file", "value":"https://wispace.ru/"}
+                    }
+                }
+            }
+            var Folder = FileSystem["sys"];
+
+            function GetFolder(pathr) {
+                var FolderV = FileSystem;
+                pathr.split('\\').map( function(item) {
+                    if (FolderV[item]["type"]=="folder") {
+                        FolderV = FolderV[item];
+                    }
+                })
+
+                Folder = FolderV;
+            }
+            function UpdatePath(new_path) {
+                try {
+                    GetFolder(new_path);
+                } catch(err) {
+                    return
+                }
+                path = new_path;
+                $("#path").html(path);
+            }
+            function Files(FolderR, tab_="") {
+                var res = "";
+                for (var key in FolderR) {
+                    if (key=="type") { }
+                    else if (FolderR[key]["type"]=="folder") {
+                        res += "\n"+tab_+key + ":folder {";
+                        var e = Files(FolderR[key], tab_+"\t");
+                        res += e;
+                        res += "\n"+tab_+"}";
+                    } else if (FolderR[key]["type"]=="file") {
+                        res += "\n"+tab_+key + ":file"
+                    }
+                }
+                return res;
+            }
+            function rptxt(text) {
+                return text.replace("\n", "<br>")
+            }
+            UpdatePath("sys");
+
+            $('.cmd-text').on('keypress', function (event) {
+                if(event.which === 13){
+                    var cmd = $(".cmd-text").val();
+                    var command = cmd.split(" ");
+                    var text = ""
+                    updPath = path;
+
+                    if (command[0]=="go") {
+                        if (command[1]=="home") {
+                            updPath = "sys";
+                        } else if (command[1]=="..") {
+                            if (path!="sys") {
+                                updPath = path.split("\\").slice(0, -1).join("\\");
+                            }
+                        } else if (command[1]==undefined){
+                            var text = path;
+                            UpdatePath(path);
+                        } else {
+                            updPath = path+"\\"+command[1];
+                        }
+                    }
+                    else if (command[0]=="") { }
+                    else if (command[0]=="path") {
+                        var text = "path: "+path;
+                        UpdatePath(path);
+                    }
+                    else if (command[0]=="color") {
+                        $("body").css("color", command[1]);
+                        $(".cmd-text").css("color", command[1]);
+                    }
+                    else if (command[0]=="read") {
+                        try {
+                            var file = Folder[command[1]];
+                            if (file["type"]=="file") {
+                                text = file["value"];
+                            }
+                        } catch (err) {
+                            text = "error";
+                        }
+                    }
+                    else if (command[0]=="write") {
+                        try {
+                            var file = Folder[command[1]];
+                            if (file["type"]=="file") {
+                                Folder[command[1]]["value"]=command.slice(2,command.length).join(" ").replace("\\n", "\n")
+                            }
+                        } catch (err) {
+                            console.log(err)
+                            text = "error";
+                        }
+                    }
+                    else if (command[0]=="create") {
+                        try {
+                            if (command[1]=="file") {
+                                Folder[command[2]] = {"type":"file", "value":""};
+                            } else if (command[1]=="folder") {
+                                Folder[command[2]] = {"type":"folder"};
+                            }
+                        } catch (err) {
+                            console.log(err)
+                            text = "error";
+                        }
+                    }
+                    else if (command[0]=="savefs") {
+                        try {
+                            localStorage.setItem("fileSystem", JSON.stringify(FileSystem));
+                        } catch (err) {
+                            console.log(err)
+                            text = "error";
+                        }
+                    }
+                    else if (command[0]=="getfs") {
+                        try {
+                            FileSystem = JSON.parse(localStorage.getItem("fileSystem"));
+                        } catch (err) {
+                            console.log(err)
+                            text = "error";
+                        }
+                    }
+                    else if (command[0]=="files") {
+                        if (command[1]=="/") {
+                            text = Files(FileSystem);
+                        } else {
+                            text = Files(Folder);
+                        }
+                    }
+                    else {
+                        text = "error: unknow command " + command[0];
+                    }
+
+                    $("#log").append($("<div></div>").text(path + ">" + cmd));
+                    $("#log").append($("<div></div>").html(rptxt(text)));
+                    $("#log").append($("<br>"));
+                    $(".cmd-text").val("");
+                    UpdatePath(updPath);
+                }
+            });
+        </script>
+    </body>
+</html>
